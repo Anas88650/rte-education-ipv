@@ -28,6 +28,7 @@ local keepvars ///
     v005 sd005 sdweight ///
     v009 v010 v011 v012 v024 v025 v044 ///
     v130 v131 v133 v149 v190 v501 ///
+    v701 v715 v729 v730 ///
     v157 s929 v169a s930 s930c ///
     v739 v743a v743b v743d v743f ///
     v744a v744b v744c v744d v744e ///
@@ -222,7 +223,35 @@ gen dv_module = (v044 == 1) if v044 < .
 label variable dv_module "Selected for domestic violence module"
 
 *------------------------------------------------------------------------------
-* 7. HETEROGENEITY VARIABLES
+* 7. ASSORTATIVE MATCHING / MARRIAGE CHARACTERISTICS
+*------------------------------------------------------------------------------
+
+gen husband_schooling = v715
+replace husband_schooling = . if husband_schooling > 30
+label variable husband_schooling "Husband/partner years of schooling"
+
+gen husband_age = v730
+replace husband_age = . if husband_age > 95
+label variable husband_age "Husband/partner age"
+
+gen husband_educ_attain = v729
+replace husband_educ_attain = . if husband_educ_attain >= 8
+label variable husband_educ_attain "Husband/partner educational attainment"
+
+gen educ_gap_husband_minus_wife = husband_schooling - schooling if !missing(husband_schooling, schooling)
+label variable educ_gap_husband_minus_wife "Education gap: husband schooling minus wife's schooling"
+
+gen age_gap_husband_minus_wife = husband_age - v012 if !missing(husband_age, v012)
+label variable age_gap_husband_minus_wife "Age gap: husband age minus wife's age"
+
+gen husband_more_educated = (husband_schooling > schooling) if !missing(husband_schooling, schooling)
+label variable husband_more_educated "Husband has more schooling than wife"
+
+gen wife_more_educated = (schooling > husband_schooling) if !missing(husband_schooling, schooling)
+label variable wife_more_educated "Wife has more schooling than husband"
+
+*------------------------------------------------------------------------------
+* 8. HETEROGENEITY VARIABLES
 *------------------------------------------------------------------------------
 
 gen caste_group = .
@@ -253,7 +282,7 @@ label values region6 region6
 label variable region6 "Broad region"
 
 *------------------------------------------------------------------------------
-* 8. SAMPLE FLAGS
+* 9. SAMPLE FLAGS
 *------------------------------------------------------------------------------
 
 gen base_controls_ok = !missing(schooling, reform_isc, cohort, state_id, nfhs, ///
@@ -270,7 +299,7 @@ label variable ipv_sample_v005  "IPV sample with v005"
 label variable ipv_sample_unw   "IPV sample unweighted"
 
 *------------------------------------------------------------------------------
-* 9. VALIDATION
+* 10. VALIDATION
 *------------------------------------------------------------------------------
 
 count if mech_sample
@@ -289,9 +318,11 @@ assert inlist(decision_family_visits, 0, 1) if !missing(decision_family_visits)
 assert inlist(decision_husband_money, 0, 1) if !missing(decision_husband_money)
 assert inlist(decision_own_earning, 0, 1) if !missing(decision_own_earning)
 assert inlist(any_ipv, 0, 1) if !missing(any_ipv)
+assert inlist(husband_more_educated, 0, 1) if !missing(husband_more_educated)
+assert inlist(wife_more_educated, 0, 1) if !missing(wife_more_educated)
 
 *------------------------------------------------------------------------------
-* 10. ORDER, COMPRESS, SAVE
+* 11. ORDER, COMPRESS, SAVE
 *------------------------------------------------------------------------------
 
 order nfhs state_id district_id cohort birth_year birth_month v011 ///
@@ -301,6 +332,9 @@ order nfhs state_id district_id cohort birth_year birth_month v011 ///
     wt_v005 wt_sd005 wt_sdweight ///
     decision_health_care decision_household_purchases ///
     decision_family_visits decision_husband_money decision_own_earning ///
+    husband_schooling husband_age husband_educ_attain ///
+    educ_gap_husband_minus_wife age_gap_husband_minus_wife ///
+    husband_more_educated wife_more_educated ///
     z_attitudes mother_violence read_newspaper bank_account use_mobile read_text ///
     emotional_violence less_severe_violence severe_violence sexual_violence any_ipv ///
     dv_module mech_sample ipv_sample_sd005 ipv_sample_v005 ipv_sample_unw
