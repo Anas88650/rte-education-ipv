@@ -1,0 +1,17 @@
+# Data: NFHS microdata cannot be redistributed
+data/*
+!data/README.md
+*.dta
+*.sav
+*.zip
+
+# Stata logs and temporary files
+logs/
+*.log
+*.smcl
+*.tmp
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+~$*

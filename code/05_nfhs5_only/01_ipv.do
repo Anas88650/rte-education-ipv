@@ -1,14 +1,25 @@
-/* NFHS-5 only: first stage, IPV reduced form, and IPV 2SLS */
+/*==============================================================================
+  File:    code/05_nfhs5_only/01_ipv.do
+  Purpose: NFHS-5 only: first stage, reduced form and 2SLS for IPV.
+  Input:   $data_dir/pooled_iv_ipv_mechanism_clean.dta
+  Output:  results/nfhs5_only/nfhs5_ipv_*.csv
+  Run from code/00_master.do, which sets $data_dir, $results_dir, $log_dir.
+==============================================================================*/
+
+if "$root" == "" {
+    display as error "Set the project paths first: run code/00_master.do"
+    exit 198
+}
 
 clear all
 set more off
 set maxvar 20000
 
 capture log close
-log using "C:\Users\anas\Desktop\THESIS\Chapter 1\CODE\29_nfhs5_ipv_only.log", replace text
+log using "$log_dir/01_ipv.log", replace text
 
-global data    "C:\Users\anas\Desktop\THESIS\Chapter 1\DATA\pooled_iv_ipv_mechanism_clean.dta"
-global results "C:\Users\anas\Desktop\THESIS\Chapter 1\RESULTS"
+global data    "$data_dir/pooled_iv_ipv_mechanism_clean.dta"
+global results "$results_dir/nfhs5_only"
 
 use "$data", clear
 
@@ -20,13 +31,13 @@ gen nfhs5_ipv_v005 = (nfhs == 2019) & inrange(v012, 18, 30) & ipv_sample_v005
 tempname fs rf iv
 
 postfile `fs' str32 sample double coef se p F N ///
-    using "$results\nfhs5_ipv_first_stage.dta", replace
+    using "$results/nfhs5_ipv_first_stage.dta", replace
 
 postfile `rf' str40 outcome double coef se p N ///
-    using "$results\nfhs5_ipv_reduced_form.dta", replace
+    using "$results/nfhs5_ipv_reduced_form.dta", replace
 
 postfile `iv' str40 outcome double coef se p firststage_F N ///
-    using "$results\nfhs5_ipv_2sls.dta", replace
+    using "$results/nfhs5_ipv_2sls.dta", replace
 
 quietly reghdfe schooling reform_isc $controls [pw=wt_v005] if nfhs5_ipv_v005, ///
     absorb(cohort state_id) vce(cluster state_id)
@@ -54,8 +65,8 @@ postclose `rf'
 postclose `iv'
 
 foreach f in ipv_first_stage ipv_reduced_form ipv_2sls {
-    use "$results\nfhs5_`f'.dta", clear
-    export delimited using "$results\nfhs5_`f'.csv", replace
+    use "$results/nfhs5_`f'.dta", clear
+    export delimited using "$results/nfhs5_`f'.csv", replace
 }
 
 log close

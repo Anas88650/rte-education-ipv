@@ -1,19 +1,26 @@
 /*==============================================================================
-    Project:  Chapter 1 - Main IV/IPV Results
-    Purpose:  Fast main thesis run:
-              first stage, reduced form, 2SLS IPV, mechanisms, sd005 check,
-              and years-of-exposure model.
+  File:    code/03_main/01_main_iv_results.do
+  Purpose: Main results: first stage, reduced form, 2SLS for IPV, 2SLS for mechanisms,
+           weight sensitivity, and years-of-exposure specification.
+  Input:   $data_dir/pooled_iv_ipv_mechanism_clean.dta
+  Output:  results/main/main_*.csv
+  Run from code/00_master.do, which sets $data_dir, $results_dir, $log_dir.
 ==============================================================================*/
+
+if "$root" == "" {
+    display as error "Set the project paths first: run code/00_master.do"
+    exit 198
+}
 
 clear all
 set more off
 set maxvar 20000
 
 capture log close
-log using "C:\Users\anas\Desktop\THESIS\Chapter 1\CODE\20_main_iv_ipv_results.log", replace text
+log using "$log_dir/01_main_iv_results.log", replace text
 
-global data    "C:\Users\anas\Desktop\THESIS\Chapter 1\DATA\pooled_iv_ipv_mechanism_clean.dta"
-global results "C:\Users\anas\Desktop\THESIS\Chapter 1\RESULTS"
+global data    "$data_dir/pooled_iv_ipv_mechanism_clean.dta"
+global results "$results_dir/main"
 
 use "$data", clear
 
@@ -56,22 +63,22 @@ replace years_exposure = 8 if years_exposure > 8 & years_exposure < .
 tempname fs rf iv mech sens exposure
 
 postfile `fs' str32 sample double coef se p F N ///
-    using "$results\main_first_stage.dta", replace
+    using "$results/main_first_stage.dta", replace
 
 postfile `rf' str32 outcome double coef se p N ///
-    using "$results\main_reduced_form.dta", replace
+    using "$results/main_reduced_form.dta", replace
 
 postfile `iv' str32 outcome double coef se p firststage_F N ///
-    using "$results\main_ipv_2sls.dta", replace
+    using "$results/main_ipv_2sls.dta", replace
 
 postfile `mech' str32 outcome double coef se p firststage_F N ///
-    using "$results\main_mechanisms_2sls.dta", replace
+    using "$results/main_mechanisms_2sls.dta", replace
 
 postfile `sens' str32 outcome str24 spec double coef se p firststage_F N ///
-    using "$results\main_weight_sensitivity.dta", replace
+    using "$results/main_weight_sensitivity.dta", replace
 
 postfile `exposure' str32 outcome str24 model double coef se p F_or_firststage_F N ///
-    using "$results\main_exposure_years.dta", replace
+    using "$results/main_exposure_years.dta", replace
 
 capture program drop calc_p
 program define calc_p, rclass
@@ -156,8 +163,8 @@ postclose `sens'
 postclose `exposure'
 
 foreach f in first_stage reduced_form ipv_2sls mechanisms_2sls weight_sensitivity exposure_years {
-    use "$results\main_`f'.dta", clear
-    export delimited using "$results\main_`f'.csv", replace
+    use "$results/main_`f'.dta", clear
+    export delimited using "$results/main_`f'.csv", replace
 }
 
 log close

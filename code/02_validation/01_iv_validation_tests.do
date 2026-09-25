@@ -1,30 +1,24 @@
-/*******************************************************************************
-  iv_validation_tests.do
-  Two pre-registration validation tests for the IV strategy
+/*==============================================================================
+  File:    code/02_validation/01_iv_validation_tests.do
+  Purpose: Two validation tests for the instrument: (A) within-year birth-month trends
+           in schooling; (B) falsification on cohorts too old to be exposed.
+  Input:   $data_dir/appended_data.dta
+  Output:  $log_dir/01_iv_validation_tests.log
+  Run from code/00_master.do, which sets $data_dir, $results_dir, $log_dir.
+==============================================================================*/
 
-  TEST A: Birth-month-within-year trend test
-    Q: Is there a secular trend in schooling by birth-month within birth-year,
-       for pre-reform cohorts (born 1966-1990)?
-    Logic: if yes → birth-year FE insufficient → parametric IV assumption violated
-    Method: regress schooling on birth-month indicators (or linear month),
-            absorbing birth-year + state + wave FE, on old cohorts only.
-
-  TEST B: Pre-reform cohort falsification
-    Q: Does reform_isc predict schooling or IPV for women too old to benefit?
-    Logic: if first stage ≠ 0 or reduced form ≠ 0 → instrument is not clean
-    Method: same IV spec on cohorts born 1966-1990 (aged 19+ at RTE enactment)
-
-  Data: appended_data.dta (pooled NFHS-4+5)
-  Output: RESULTS\iv_validation_tests.log
-*******************************************************************************/
+if "$root" == "" {
+    display as error "Set the project paths first: run code/00_master.do"
+    exit 198
+}
 
 clear all
 set more off
 cap log close
-log using "C:\Users\anas\Desktop\THESIS\Chapter 1\RESULTS\iv_validation_tests.log", replace
+log using "$log_dir/01_iv_validation_tests.log", replace
 
-global data    "C:\Users\anas\Desktop\THESIS\Chapter 1\DATA\appended_data.dta"
-global results "C:\Users\anas\Desktop\THESIS\Chapter 1\RESULTS"
+global data    "$data_dir/appended_data.dta"
+global results "$results_dir"
 
 ********************************************************************************
 * 1. LOAD & PREP
@@ -270,7 +264,7 @@ di ""
 di "TEST A (Birth-month within-year trend):"
 di "  Check the F-test p-value above."
 di "  p > 0.10 => birth-year FE defensible => parametric IV viable"
-di "  p < 0.10 => birth-month FE required  => only RDD framework valid"
+di "  p < 0.10 => birth-month FE required  => add birth-month fixed effects"
 di ""
 di "TEST B (Pre-reform falsification):"
 di "  All [PASS] => instrument clean, exclusion restriction supported"

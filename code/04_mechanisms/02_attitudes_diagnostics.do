@@ -1,14 +1,25 @@
-/* Diagnostics for attitude mechanisms: OLS and reduced form */
+/*==============================================================================
+  File:    code/04_mechanisms/02_attitudes_diagnostics.do
+  Purpose: OLS and reduced-form diagnostics for the attitude outcomes.
+  Input:   $data_dir/pooled_iv_ipv_mechanism_clean.dta
+  Output:  results/mechanisms/attitudes_diagnostics.csv
+  Run from code/00_master.do, which sets $data_dir, $results_dir, $log_dir.
+==============================================================================*/
+
+if "$root" == "" {
+    display as error "Set the project paths first: run code/00_master.do"
+    exit 198
+}
 
 clear all
 set more off
 set maxvar 20000
 
 capture log close
-log using "C:\Users\anas\Desktop\THESIS\Chapter 1\CODE\24_attitudes_diagnostics.log", replace text
+log using "$log_dir/02_attitudes_diagnostics.log", replace text
 
-global data    "C:\Users\anas\Desktop\THESIS\Chapter 1\DATA\pooled_iv_ipv_mechanism_clean.dta"
-global results "C:\Users\anas\Desktop\THESIS\Chapter 1\RESULTS"
+global data    "$data_dir/pooled_iv_ipv_mechanism_clean.dta"
+global results "$results_dir/mechanisms"
 
 use "$data", clear
 
@@ -26,7 +37,7 @@ gen main_mech_v005 = mech_sample & age1830
 
 tempname diag
 postfile `diag' str40 outcome str16 model double coef se p N ///
-    using "$results\attitudes_diagnostics.dta", replace
+    using "$results/attitudes_diagnostics.dta", replace
 
 foreach y of global attitude_outcomes {
     quietly reghdfe `y' schooling $controls [pw=wt_v005] ///
@@ -44,7 +55,7 @@ foreach y of global attitude_outcomes {
 
 postclose `diag'
 
-use "$results\attitudes_diagnostics.dta", clear
-export delimited using "$results\attitudes_diagnostics.csv", replace
+use "$results/attitudes_diagnostics.dta", clear
+export delimited using "$results/attitudes_diagnostics.csv", replace
 
 log close

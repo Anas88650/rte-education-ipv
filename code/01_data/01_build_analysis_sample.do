@@ -1,23 +1,23 @@
 /*==============================================================================
-    Project:  Chapter 1 - Education, IPV, and Mechanisms
-    Author:   Codex
-    Date:     18 May 2026
-    Purpose:  Build a cleaned pooled NFHS analysis file for:
-              1. first-stage schooling regressions
-              2. IPV IV analysis
-              3. mechanism IV analysis
-              4. heterogeneity by region, caste, and wealth
-
-    Input:    DATA\appended_data.dta
-    Output:   DATA\pooled_iv_ipv_mechanism_clean.dta
+  File:    code/01_data/01_build_analysis_sample.do
+  Purpose: Build the cleaned pooled NFHS-4/NFHS-5 analysis file: RTE exposure, schooling,
+           IPV outcomes, mechanism outcomes, weights and sample flags.
+  Input:   $data_dir/appended_data.dta
+  Output:  $data_dir/pooled_iv_ipv_mechanism_clean.dta
+  Run from code/00_master.do, which sets $data_dir, $results_dir, $log_dir.
 ==============================================================================*/
+
+if "$root" == "" {
+    display as error "Set the project paths first: run code/00_master.do"
+    exit 198
+}
 
 clear all
 set more off
 set maxvar 20000
 
 capture log close
-log using "C:\Users\anas\Desktop\THESIS\Chapter 1\CODE\17_clean_iv_ipv_mechanism_data.log", replace text
+log using "$log_dir/01_build_analysis_sample.log", replace text
 
 *------------------------------------------------------------------------------
 * 1. LOAD ONLY REQUIRED VARIABLES
@@ -34,7 +34,7 @@ local keepvars ///
     v744a v744b v744c v744d v744e ///
     d104 d106 d107 d108 d121
 
-use `keepvars' using "C:\Users\anas\Desktop\THESIS\Chapter 1\DATA\appended_data.dta", clear
+use `keepvars' using "$data_dir/appended_data.dta", clear
 
 describe
 count
@@ -340,7 +340,7 @@ order nfhs state_id district_id cohort birth_year birth_month v011 ///
     dv_module mech_sample ipv_sample_sd005 ipv_sample_v005 ipv_sample_unw
 
 compress
-save "C:\Users\anas\Desktop\THESIS\Chapter 1\DATA\pooled_iv_ipv_mechanism_clean.dta", replace
+save "$data_dir/pooled_iv_ipv_mechanism_clean.dta", replace
 
 codebook, compact
 
