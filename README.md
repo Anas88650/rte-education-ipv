@@ -1,6 +1,4 @@
-# Education and Intimate Partner Violence: Evidence from India's Right to Education Act
-
-Stata code for a thesis chapter that estimates the effect of women's schooling on intimate partner violence (IPV) in India. I use the Right to Education (RTE) Act as a source of variation in schooling: women born after their state's RTE birth cutoff were exposed to compulsory schooling, and women born before it were not.
+# Empowering Through Education: Analyzing the Impact of the Right to Education Act on Intimate Partner Violence in India 
 
 **Author:** Anas Khan, PhD candidate in Economics, Indira Gandhi Institute of Development Research (IGIDR), Mumbai
 
@@ -8,7 +6,7 @@ Stata code for a thesis chapter that estimates the effect of women's schooling o
 
 ## Research question
 
-Does more schooling reduce the IPV that women experience, and through which channels? I examine three channels: women's attitudes towards wife-beating, their say in household decisions, and who they marry (the husband's schooling and the education and age gaps between spouses).
+Does more schooling reduce the IPV that women experience, and through which channels?
 
 ## Data
 
@@ -16,7 +14,7 @@ Does more schooling reduce the IPV that women experience, and through which chan
 - The two rounds are pooled, and state and district codes are mapped to a common set of boundaries.
 - Sample: women aged 18–30 selected for the domestic violence module.
 
-The raw NFHS files are distributed by the [DHS Program](https://dhsprogram.com/) under registration and cannot be shared here. No microdata are included in this repository. See [`data/README.md`](data/README.md) for how to obtain the data and where to place it. The processed files are available from the author on request.
+No microdata are included in this repository. See [`data/README.md`](data/README.md) for how to obtain the data and where to place it. The processed files are available from the author on request.
 
 ## Empirical strategy
 
@@ -32,7 +30,7 @@ ivreghdfe outcome rural i.v130 i.v131 (schooling = reform_isc) [pw = weight], //
 - **Standard errors:** clustered by state.
 - **Weights:** women's sample weight (`v005`), with the domestic violence weight (`sd005`) as a sensitivity check.
 
-The 2SLS coefficient is the change in the outcome from one additional year of schooling induced by RTE exposure. Two tests check the instrument (`code/02_validation`). The first asks whether schooling trends within birth years among cohorts too old to be exposed. The second asks whether the instrument predicts schooling or IPV in those cohorts.
+The 2SLS coefficient is the change in the outcome from one additional year of schooling induced by RTE exposure. Two tests check the instrument validation (`code/02_validation`).
 
 ## Repository structure
 
